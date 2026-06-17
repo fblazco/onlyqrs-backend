@@ -1,14 +1,25 @@
 {
   "name": "onlyqrs-backend",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+  "dev": "node --watch main.js",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fblazco/onlyqrs-backend.git"
   },
-  "devDependencies": {
-    "vite": "^8.0.12"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/fblazco/onlyqrs-backend/issues"
+  },
+  "homepage": "https://github.com/fblazco/onlyqrs-backend#readme",
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
