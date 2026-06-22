@@ -1,4 +1,5 @@
 // src/main.js
+require('dotenv').config(); // <-- Agrega esto en la línea 1
 const express = require('express');
 //const cors = require('cors'); // <-- 1. Descomentado
 
