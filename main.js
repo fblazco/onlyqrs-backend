@@ -1,16 +1,16 @@
 // src/main.js
 const express = require('express');
-// const cors = require('cors'); // OJO: Descomenta esto y haz 'npm install cors' si tu frontend te tira error de CORS
+//const cors = require('cors'); // <-- 1. Descomentado
 
 const scannerRoutes = require('./routes/scanner.routes.js');
 
 const app = express();
-const PORT = 3000;
+// <-- 2. Puerto dinámico para Render, o 3000 en local
+const PORT = process.env.PORT || 3000; 
 
-// app.use(cors()); // Descomenta esto cuando pruebes con el frontend
-app.use(express.json()); // Vital para poder leer req.body
+//app.use(cors()); // <-- 3. Descomentado (Permite peticiones externas)
+app.use(express.json()); 
 
-// Usamos nuestra nueva ruta
 app.use('/api/scanner', scannerRoutes);
 
 app.get('/api/health', (req, res) => {
@@ -18,5 +18,5 @@ app.get('/api/health', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });
