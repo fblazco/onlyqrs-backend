@@ -28,6 +28,43 @@ async function verifyUrl(req, res) {
             });
         }
 
+        // 🚨 ==========================================
+        // 1.5 MOCK DE PRUEBA (EL LINK ULTRA MALO EXAGERADO)
+        // ==========================================
+        if (domain === "hacker-page.com" || domain === "www.hacker-page.com") {
+            console.log("😈 [ALERTA] Simulacro activado: Devolviendo el peor escenario posible.");
+            
+            return res.json({
+                success: true,
+                reporte_seguridad: {
+                    objetivo: {
+                        url_completa: url,
+                        dominio_base: domain
+                    },
+                    evaluacion: {
+                        nivel_riesgo: "CRÍTICO",
+                        es_seguro: false,
+                        total_banderas_rojas: 7,
+                        advertencias: [
+                            "🚨 [PELIGRO INMINENTE] Dominio creado hace apenas 15 minutos. Nivel de amenaza máximo.",
+                            "🚨 [PHISHING] Se detectó un intento de suplantación de identidad bancaria.",
+                            "🚨 [INFRAESTRUCTURA] Servidor alojado en una red conocida internacionalmente por distribuir Ransomware.",
+                            "🚨 [PRIVACIDAD] El creador ocultó su identidad utilizando múltiples capas de proxys.",
+                            "🚨 [SEGURIDAD] El sitio tiene scripts maliciosos intentando robar cookies de sesión.",
+                            "🚨 [RED] Dirección IP asociada a una Botnet actualmente activa.",
+                            "🚨 [SOSPECHA] Dominio configurado para autodestruirse y borrar sus rastros en menos de 12 horas."
+                        ]
+                    },
+                    datos_tecnicos: {
+                        antiguedad_dias: 0,
+                        fecha_creacion: new Date(Date.now() - 900000).toISOString().split('T')[0], // Hace 15 minutos
+                        fecha_expiracion: new Date(Date.now() + 43200000).toISOString().split('T')[0], // En 12 horas
+                        empresa_registradora: "Offshore DarkWeb Domains LLC"
+                    }
+                }
+            });
+        }
+
         // ==========================================
         // 2. CONSULTA A LA API DE WHOISJSON
         // ==========================================
@@ -37,7 +74,6 @@ async function verifyUrl(req, res) {
             throw new Error("Falta la variable WHOIS_API_KEY en Render");
         }
 
-        // Armamos la configuración exacta que me pasaste
         const options = {
             method: 'GET',
             url: 'https://whoisjson.com/api/v1/whois',
@@ -47,7 +83,6 @@ async function verifyUrl(req, res) {
             }
         };
 
-        // Ejecutamos el fetch
         const response = await fetch(options.url + '?' + new URLSearchParams(options.params), {
             method: options.method,
             headers: options.headers
@@ -58,8 +93,6 @@ async function verifyUrl(req, res) {
         }
 
         const data = await response.json();
-        
-        // ¡OJO ACÁ! Esto imprimirá en tu terminal de Render todo lo que responde la API
         console.log("📦 Datos recibidos de WhoisJSON:", data);
 
         // ==========================================
@@ -69,19 +102,15 @@ async function verifyUrl(req, res) {
         let nivelRiesgo = "DESCONOCIDO";
         let banderasRojas = [];
 
-        // Adaptamos la extracción a los nombres de variables más comunes de WhoisJSON
-        // Si al revisar tus logs de Render ves que la fecha viene en otra llave, lo ajustamos aquí
         const fechaCreacion = data.created || data.creation_date || (data.domain && data.domain.created_date);
         const fechaExpiracion = data.expires || data.expiration_date || (data.domain && data.domain.expiration_date);
         const registrador = data.registrar?.name || data.registrar || "Desconocido";
 
-        // Análisis de fechas
         if (fechaCreacion) {
             const creationDate = new Date(fechaCreacion);
             const hoy = new Date();
             edadDias = Math.floor((hoy - creationDate) / (1000 * 60 * 60 * 24));
 
-            // Reglas del motor de seguridad
             if (edadDias < 30) {
                 banderasRojas.push("Dominio críticamente nuevo (creado hace menos de 30 días). Altísima probabilidad de Phishing.");
             } else if (edadDias < 180) {
@@ -99,7 +128,6 @@ async function verifyUrl(req, res) {
             banderasRojas.push("No se pudo obtener la fecha de creación del dominio. El registro podría ser irregular.");
         }
 
-        // Determinación final del riesgo
         if (banderasRojas.length >= 2 || edadDias < 30) {
             nivelRiesgo = "ALTO";
         } else if (banderasRojas.length === 1) {
@@ -109,7 +137,7 @@ async function verifyUrl(req, res) {
         }
 
         // ==========================================
-        // 4. RESPONDER AL FRONTEND (EL INFORME)
+        // 4. RESPONDER AL FRONTEND
         // ==========================================
         return res.json({
             success: true,
