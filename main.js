@@ -16,7 +16,10 @@ app.use('/api/scanner', scannerRoutes);
 app.get('/api/health', (req, res) => {
     res.json({ message: "¡El escáner está en línea!" });
 });
-
+// Ruta de bienvenida para la raíz
+app.get('/', (req, res) => {
+    res.send('🛡️ API de OnlyQRs funcionando correctamente. Motor en línea.');
+});
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });
