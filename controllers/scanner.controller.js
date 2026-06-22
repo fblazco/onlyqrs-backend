@@ -1,8 +1,8 @@
 // controllers/scanner.controller.js
+const { URL } = require('url');
 
 async function verifyUrl(req, res) {
     try {
-        // 1. Recibimos la URL del frontend
         const { url } = req.body;
 
         if (!url) {
@@ -12,53 +12,122 @@ async function verifyUrl(req, res) {
             });
         }
 
-        console.log(`🔍 Analizando URL: ${url}`);
+        console.log(`🔍 Generando informe de seguridad para: ${url}`);
 
         // ==========================================
-        // 2. LA CONSULTA A LA API EXTERNA
+        // 1. LIMPIAR LA URL
         // ==========================================
-        // Aquí es donde harás la llamada a la API real. 
-        // Por ahora, pondremos una simulación didáctica para que veas cómo se arma.
-        
-        /* EJEMPLO DE CÓMO SERÁ EL CÓDIGO REAL:
-        const response = await fetch(`https://api.de-seguridad.com/check?url=${url}`, {
-            headers: { 'Authorization': 'Bearer TU_API_KEY' }
-        });
-        const externalData = await response.json();
-        */
+        let domain;
+        try {
+            const parsedUrl = new URL(url);
+            domain = parsedUrl.hostname; 
+        } catch (err) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "El formato de la URL no es válido." 
+            });
+        }
 
-        // SIMULACIÓN (Borraremos esto cuando conectes tu API real)
-        // Vamos a simular que la API demora 1 segundo en responder
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Simulamos que cualquier link que tenga la palabra "hack" o "virus" es malicioso
-        const isMalicious = url.includes("hack") || url.includes("virus");
-        
-        const simulatedExternalData = {
-            risk_level: isMalicious ? "HIGH" : "LOW",
-            details: isMalicious ? "Phishing detectado" : "Sitio seguro"
-        };
         // ==========================================
+        // 2. CONSULTA A LA API DE WHOIS
+        // ==========================================
+        const apiKey = "de19a8ade5ee6b15af412d6af021fa2431554783d1ce89eb03c25e98a3714d6e";
+        const apiUrl = `https://www.whoisxmlapi.com/api/v1?apiKey=${apiKey}&domainName=${domain}&outputFormat=JSON`;
 
+        const response = await fetch(apiUrl);
 
-        // 3. RESPONDER AL FRONTEND
-        // Traducimos lo que sea que nos dijo la API externa a nuestro propio formato estándar
-        const isSafe = simulatedExternalData.risk_level === "LOW";
+        if (!response.ok) {
+            throw new Error(`Error en la API de Whois: status ${response.status}`);
+        }
 
+        const data = await response.json();
+
+        // ==========================================
+        // 3. GENERACIÓN DEL INFORME Y BANDERAS ROJAS
+        // ==========================================
+        const record = data.WhoisRecord || {};
+        let edadDias = "Desconocida";
+        let nivelRiesgo = "DESCONOCIDO";
+        let banderasRojas = [];
+
+        // Extraemos datos extra útiles para el reporte
+        const registrador = record.registrarName || "Oculto / Desconocido";
+        const paisOrigen = record.registrant?.country || record.registryData?.registrant?.country || "Oculto";
+        const organizacion = record.registrant?.organization || record.registryData?.registrant?.organization || "Privacidad Activada";
+
+        // Análisis de fechas
+        if (record.createdDate) {
+            const creationDate = new Date(record.createdDate);
+            const hoy = new Date();
+            edadDias = Math.floor((hoy - creationDate) / (1000 * 60 * 60 * 24));
+
+            // Reglas del motor de seguridad
+            if (edadDias < 30) {
+                banderasRojas.push("Dominio críticamente nuevo (creado hace menos de 30 días). Altísima probabilidad de Phishing.");
+            } else if (edadDias < 180) {
+                banderasRojas.push("Dominio relativamente nuevo (menos de 6 meses de antigüedad).");
+            }
+
+            // Analizar fecha de expiración (los estafadores suelen arrendar dominios por el mínimo de tiempo: 1 año)
+            if (record.expiresDate) {
+                const expiresDate = new Date(record.expiresDate);
+                const diasParaExpirar = Math.floor((expiresDate - hoy) / (1000 * 60 * 60 * 24));
+                if (diasParaExpirar < 30) {
+                    banderasRojas.push("El dominio está a punto de expirar en menos de 30 días. Suele indicar sitios temporales.");
+                }
+            }
+        } else {
+            banderasRojas.push("No se pudo obtener la fecha de creación del dominio. El registro podría ser irregular.");
+        }
+
+        // Si los datos del propietario están ocultos (muy común, pero suma sospecha si la página es nueva)
+        if (organizacion.includes("Privacidad") || organizacion === "Oculto") {
+            banderasRojas.push("El propietario del dominio tiene activada la protección de privacidad WHOIS.");
+        }
+
+        // Determinación final del riesgo
+        if (banderasRojas.length >= 2 || edadDias < 30) {
+            nivelRiesgo = "ALTO";
+        } else if (banderasRojas.length === 1) {
+            nivelRiesgo = "MEDIO";
+        } else {
+            nivelRiesgo = "BAJO";
+        }
+
+        // ==========================================
+        // 4. RESPONDER AL FRONTEND (EL INFORME)
+        // ==========================================
         return res.json({
             success: true,
-            data: {
-                url_analizada: url,
-                es_seguro: isSafe,
-                mensaje: simulatedExternalData.details
+            reporte_seguridad: {
+                objetivo: {
+                    url_completa: url,
+                    dominio_base: domain
+                },
+                evaluacion: {
+                    nivel_riesgo: nivelRiesgo,
+                    es_seguro: nivelRiesgo === "BAJO" || nivelRiesgo === "MEDIO",
+                    total_banderas_rojas: banderasRojas.length,
+                    advertencias: banderasRojas
+                },
+                datos_tecnicos: {
+                    antiguedad_dias: edadDias,
+                    fecha_creacion: record.createdDate ? record.createdDate.split('T')[0] : "Desconocida",
+                    fecha_expiracion: record.expiresDate ? record.expiresDate.split('T')[0] : "Desconocida",
+                    empresa_registradora: registrador,
+                    propietario: {
+                        organizacion: organizacion,
+                        pais: paisOrigen
+                    }
+                }
             }
         });
 
     } catch (error) {
-        console.error("Error al analizar la URL:", error);
+        console.error("Error al generar el informe de seguridad:", error);
         return res.status(500).json({ 
             success: false, 
-            message: "Error interno del servidor al consultar la API externa." 
+            message: "Error interno del servidor al consultar la información del dominio." 
         });
     }
 }
