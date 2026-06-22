@@ -29,35 +29,55 @@ async function verifyUrl(req, res) {
         }
 
         // ==========================================
-        // 2. CONSULTA A LA API DE WHOIS
+        // 2. CONSULTA A LA API DE WHOISJSON
         // ==========================================
-        const apiKey = "de19a8ade5ee6b15af412d6af021fa2431554783d1ce89eb03c25e98a3714d6e";
-        const apiUrl = `https://www.whoisxmlapi.com/api/v1?apiKey=${apiKey}&domainName=${domain}&outputFormat=JSON`;
+        const apiKey = process.env.WHOIS_API_KEY;
+        
+        if (!apiKey) {
+            throw new Error("Falta la variable WHOIS_API_KEY en Render");
+        }
 
-        const response = await fetch(apiUrl);
+        // Armamos la configuración exacta que me pasaste
+        const options = {
+            method: 'GET',
+            url: 'https://whoisjson.com/api/v1/whois',
+            params: { domain: domain },
+            headers: {
+                'Authorization': `TOKEN=${apiKey}`
+            }
+        };
+
+        // Ejecutamos el fetch
+        const response = await fetch(options.url + '?' + new URLSearchParams(options.params), {
+            method: options.method,
+            headers: options.headers
+        });
 
         if (!response.ok) {
-            throw new Error(`Error en la API de Whois: status ${response.status}`);
+            throw new Error(`Error en la API de WhoisJSON: status ${response.status}`);
         }
 
         const data = await response.json();
+        
+        // ¡OJO ACÁ! Esto imprimirá en tu terminal de Render todo lo que responde la API
+        console.log("📦 Datos recibidos de WhoisJSON:", data);
 
         // ==========================================
         // 3. GENERACIÓN DEL INFORME Y BANDERAS ROJAS
         // ==========================================
-        const record = data.WhoisRecord || {};
         let edadDias = "Desconocida";
         let nivelRiesgo = "DESCONOCIDO";
         let banderasRojas = [];
 
-        // Extraemos datos extra útiles para el reporte
-        const registrador = record.registrarName || "Oculto / Desconocido";
-        const paisOrigen = record.registrant?.country || record.registryData?.registrant?.country || "Oculto";
-        const organizacion = record.registrant?.organization || record.registryData?.registrant?.organization || "Privacidad Activada";
+        // Adaptamos la extracción a los nombres de variables más comunes de WhoisJSON
+        // Si al revisar tus logs de Render ves que la fecha viene en otra llave, lo ajustamos aquí
+        const fechaCreacion = data.created || data.creation_date || (data.domain && data.domain.created_date);
+        const fechaExpiracion = data.expires || data.expiration_date || (data.domain && data.domain.expiration_date);
+        const registrador = data.registrar?.name || data.registrar || "Desconocido";
 
         // Análisis de fechas
-        if (record.createdDate) {
-            const creationDate = new Date(record.createdDate);
+        if (fechaCreacion) {
+            const creationDate = new Date(fechaCreacion);
             const hoy = new Date();
             edadDias = Math.floor((hoy - creationDate) / (1000 * 60 * 60 * 24));
 
@@ -68,9 +88,8 @@ async function verifyUrl(req, res) {
                 banderasRojas.push("Dominio relativamente nuevo (menos de 6 meses de antigüedad).");
             }
 
-            // Analizar fecha de expiración (los estafadores suelen arrendar dominios por el mínimo de tiempo: 1 año)
-            if (record.expiresDate) {
-                const expiresDate = new Date(record.expiresDate);
+            if (fechaExpiracion) {
+                const expiresDate = new Date(fechaExpiracion);
                 const diasParaExpirar = Math.floor((expiresDate - hoy) / (1000 * 60 * 60 * 24));
                 if (diasParaExpirar < 30) {
                     banderasRojas.push("El dominio está a punto de expirar en menos de 30 días. Suele indicar sitios temporales.");
@@ -78,11 +97,6 @@ async function verifyUrl(req, res) {
             }
         } else {
             banderasRojas.push("No se pudo obtener la fecha de creación del dominio. El registro podría ser irregular.");
-        }
-
-        // Si los datos del propietario están ocultos (muy común, pero suma sospecha si la página es nueva)
-        if (organizacion.includes("Privacidad") || organizacion === "Oculto") {
-            banderasRojas.push("El propietario del dominio tiene activada la protección de privacidad WHOIS.");
         }
 
         // Determinación final del riesgo
@@ -112,13 +126,9 @@ async function verifyUrl(req, res) {
                 },
                 datos_tecnicos: {
                     antiguedad_dias: edadDias,
-                    fecha_creacion: record.createdDate ? record.createdDate.split('T')[0] : "Desconocida",
-                    fecha_expiracion: record.expiresDate ? record.expiresDate.split('T')[0] : "Desconocida",
-                    empresa_registradora: registrador,
-                    propietario: {
-                        organizacion: organizacion,
-                        pais: paisOrigen
-                    }
+                    fecha_creacion: fechaCreacion || "Desconocida",
+                    fecha_expiracion: fechaExpiracion || "Desconocida",
+                    empresa_registradora: registrador
                 }
             }
         });
