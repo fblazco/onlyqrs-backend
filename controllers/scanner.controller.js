@@ -12,7 +12,7 @@ async function verifyUrl(req, res) {
             });
         }
 
-        console.log(`🔍 Generando informe de seguridad para: ${url}`);
+        console.log(`🔍 Generando informe de seguridad (VirusTotal) para: ${url}`);
 
         // ==========================================
         // 1. LIMPIAR LA URL
@@ -57,82 +57,85 @@ async function verifyUrl(req, res) {
                     },
                     datos_tecnicos: {
                         antiguedad_dias: 0,
-                        fecha_creacion: new Date(Date.now() - 900000).toISOString().split('T')[0], // Hace 15 minutos
-                        fecha_expiracion: new Date(Date.now() + 43200000).toISOString().split('T')[0], // En 12 horas
-                        empresa_registradora: "Offshore DarkWeb Domains LLC"
+                        motores_maliciosos: 65,
+                        motores_sospechosos: 5
                     }
                 }
             });
         }
 
         // ==========================================
-        // 2. CONSULTA A LA API DE WHOISJSON
+        // 2. CONSULTA A LA API DE VIRUSTOTAL (v3)
         // ==========================================
-        const apiKey = process.env.WHOIS_API_KEY;
+        const apiKey = process.env.VIRUSTOTAL_API_KEY;
         
         if (!apiKey) {
-            throw new Error("Falta la variable WHOIS_API_KEY en Render");
+            throw new Error("Falta la variable VIRUSTOTAL_API_KEY en Render o .env");
         }
+
+        // VirusTotal v3 requiere que la URL se envíe como un hash Base64 sin signos de igual
+        const urlIdBase64 = Buffer.from(url).toString('base64').replace(/=/g, '');
 
         const options = {
             method: 'GET',
-            url: 'https://whoisjson.com/api/v1/whois',
-            params: { domain: domain },
+            url: `https://www.virustotal.com/api/v3/urls/${urlIdBase64}`,
             headers: {
-                'Authorization': `TOKEN=${apiKey}`
+                'x-apikey': apiKey
             }
         };
 
-        const response = await fetch(options.url + '?' + new URLSearchParams(options.params), {
-            method: options.method,
-            headers: options.headers
-        });
+        const response = await fetch(options.url, options);
 
-        if (!response.ok) {
-            throw new Error(`Error en la API de WhoisJSON: status ${response.status}`);
+        // Si VirusTotal devuelve 404, significa que NADIE en el mundo ha escaneado este link antes.
+        // Este es el problema de "Día Cero" que discutimos.
+        if (response.status === 404) {
+            console.log("⚠️ URL no encontrada en la base de datos de VirusTotal.");
+            return res.json({
+                success: true,
+                reporte_seguridad: {
+                    objetivo: { url_completa: url, dominio_base: domain },
+                    evaluacion: {
+                        nivel_riesgo: "MEDIO", // Le damos medio por precaución al ser desconocido
+                        es_seguro: true,
+                        total_banderas_rojas: 1,
+                        advertencias: ["La URL es completamente nueva o nunca ha sido analizada por VirusTotal. Proceder con precaución."]
+                    },
+                    datos_tecnicos: {
+                        antiguedad_dias: "Desconocida",
+                        motores_maliciosos: 0,
+                        motores_sospechosos: 0
+                    }
+                }
+            });
         }
 
-        const data = await response.json();
-        console.log("📦 Datos recibidos de WhoisJSON:", data);
+        if (!response.ok) {
+            throw new Error(`Error en la API de VirusTotal: status ${response.status}`);
+        }
+
+        const vtData = await response.json();
+        console.log("📦 Datos recibidos de VirusTotal:", vtData.data.attributes.last_analysis_stats);
 
         // ==========================================
         // 3. GENERACIÓN DEL INFORME Y BANDERAS ROJAS
         // ==========================================
-        let edadDias = "Desconocida";
-        let nivelRiesgo = "DESCONOCIDO";
+        const stats = vtData.data.attributes.last_analysis_stats;
+        let nivelRiesgo = "BAJO";
         let banderasRojas = [];
 
-        const fechaCreacion = data.created || data.creation_date || (data.domain && data.domain.created_date);
-        const fechaExpiracion = data.expires || data.expiration_date || (data.domain && data.domain.expiration_date);
-        const registrador = data.registrar?.name || data.registrar || "Desconocido";
-
-        if (fechaCreacion) {
-            const creationDate = new Date(fechaCreacion);
-            const hoy = new Date();
-            edadDias = Math.floor((hoy - creationDate) / (1000 * 60 * 60 * 24));
-
-            if (edadDias < 30) {
-                banderasRojas.push("Dominio críticamente nuevo (creado hace menos de 30 días). Altísima probabilidad de Phishing.");
-            } else if (edadDias < 180) {
-                banderasRojas.push("Dominio relativamente nuevo (menos de 6 meses de antigüedad).");
-            }
-
-            if (fechaExpiracion) {
-                const expiresDate = new Date(fechaExpiracion);
-                const diasParaExpirar = Math.floor((expiresDate - hoy) / (1000 * 60 * 60 * 24));
-                if (diasParaExpirar < 30) {
-                    banderasRojas.push("El dominio está a punto de expirar en menos de 30 días. Suele indicar sitios temporales.");
-                }
-            }
-        } else {
-            banderasRojas.push("No se pudo obtener la fecha de creación del dominio. El registro podría ser irregular.");
+        if (stats.malicious > 0) {
+            banderasRojas.push(`🚨 ${stats.malicious} motores de antivirus detectaron este sitio como MALICIOSO.`);
+        }
+        if (stats.suspicious > 0) {
+            banderasRojas.push(`⚠️ ${stats.suspicious} motores marcaron este sitio como SOSPECHOSO.`);
         }
 
-        if (banderasRojas.length >= 2 || edadDias < 30) {
+        // Determinación del riesgo basado en los votos de los antivirus
+        if (stats.malicious >= 2) {
             nivelRiesgo = "ALTO";
-        } else if (banderasRojas.length === 1) {
+        } else if (stats.malicious === 1 || stats.suspicious >= 2) {
             nivelRiesgo = "MEDIO";
-        } else {
+        } else if (banderasRojas.length === 0) {
             nivelRiesgo = "BAJO";
         }
 
@@ -148,15 +151,15 @@ async function verifyUrl(req, res) {
                 },
                 evaluacion: {
                     nivel_riesgo: nivelRiesgo,
-                    es_seguro: nivelRiesgo === "BAJO" || nivelRiesgo === "MEDIO",
+                    es_seguro: nivelRiesgo === "BAJO",
                     total_banderas_rojas: banderasRojas.length,
                     advertencias: banderasRojas
                 },
                 datos_tecnicos: {
-                    antiguedad_dias: edadDias,
-                    fecha_creacion: fechaCreacion || "Desconocida",
-                    fecha_expiracion: fechaExpiracion || "Desconocida",
-                    empresa_registradora: registrador
+                    antiguedad_dias: "No aplicable en VirusTotal",
+                    motores_maliciosos: stats.malicious,
+                    motores_sospechosos: stats.suspicious,
+                    motores_inofensivos: stats.harmless
                 }
             }
         });
