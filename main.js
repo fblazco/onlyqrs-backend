@@ -18,7 +18,7 @@ app.get('/api/health', (req, res) => {
 });
 // Ruta de bienvenida para la raíz
 app.get('/', (req, res) => {
-    res.send('🛡️ API de OnlyQRs funcionando correctamente. Motor en línea.');
+    res.send('🛡️ API de OnlyQRs funcionando correctamente.');
 });
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
