@@ -4,8 +4,8 @@
   "description": "API Backend para el escáner de OnlyQRs",
   "main": "main.js",
   "scripts": {
-    "dev": "node --watch main.js",
-    "start": "node main.js"
+    "dev": "node --watch src/main.js",
+    "start": "node src/main.js"
   },
   "repository": {
     "type": "git",
@@ -20,8 +20,12 @@
   },
   "homepage": "https://github.com/fblazco/onlyqrs-backend#readme",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "pg": "^8.22.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.8"
   }
 }
