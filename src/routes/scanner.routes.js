@@ -1,15 +1,15 @@
 // src/routes/scanner.routes.js
 const express = require('express');
 const router = express.Router();
+
+// Importamos los dos controladores
 const { verifyUrl } = require('../controllers/scanner.controller.js');
+const { getHistoryReport } = require('../controllers/analytics.controller.js'); // <-- ¡Aquí traemos la nueva función!
 
 // ==========================================
 // MIDDLEWARES LOCALES
 // ==========================================
 
-/**
- * Middleware para validar que el body contiene una URL antes de molestar al controlador.
- */
 const validateUrlInput = (req, res, next) => {
     const { url } = req.body;
     
@@ -20,7 +20,6 @@ const validateUrlInput = (req, res, next) => {
         });
     }
 
-    // Validación básica de estructura web (que empiece con http/https)
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         return res.status(400).json({ 
             success: false,
@@ -28,15 +27,17 @@ const validateUrlInput = (req, res, next) => {
         });
     }
 
-    next(); // Todo en orden, pasamos el control al controller
+    next();
 };
 
 // ==========================================
 // DEFINICIÓN DE RUTAS
 // ==========================================
 
-// Usamos POST /scan para respetar la especificación técnica de OnlyQRs
-// Le inyectamos el validador antes de ejecutar verifyUrl
+// 1. Ruta principal del escáner (arreglada a /scan)
 router.post('/scan', validateUrlInput, verifyUrl);
+
+// 2. Ruta para el reporte ejecutivo con IA 
+router.get('/analytics/report', getHistoryReport);
 
 module.exports = router;
