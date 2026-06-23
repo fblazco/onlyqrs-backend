@@ -5,44 +5,60 @@ class AbuseStrategy extends ThreatStrategy {
     async analyze(urlToAnalyze) {
         console.log(`🦠 [URLhaus] Consultando base de datos de malware para: ${urlToAnalyze}`);
 
+        // OJO: Recuerda agregar URLHAUS_API_KEY a tu archivo .env
+        const apiKey = process.env.URLHAUS_API_KEY;
+
         try {
-            // URLhaus requiere que los parámetros vayan como un formulario tradicional
             const formBody = new URLSearchParams();
             formBody.append('url', urlToAnalyze);
 
+            // Armamos los headers incluyendo la llave requerida por la documentación
+            const requestHeaders = {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            };
+
+            if (apiKey) {
+                requestHeaders['Auth-Key'] = apiKey;
+            } else {
+                console.warn("⚠️ [URLhaus] Falta URLHAUS_API_KEY en el .env. La consulta podría ser rechazada.");
+            }
+
             const response = await fetch('https://urlhaus-api.abuse.ch/v1/url/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
+                headers: requestHeaders,
                 body: formBody.toString()
             });
 
             if (!response.ok) {
-                throw new Error(`Error en API de URLhaus: ${response.status}`);
+                throw new Error(`Error en API de URLhaus: HTTP ${response.status}`);
             }
 
             const data = await response.json();
 
-            // URLhaus devuelve query_status "ok" si la URL está en su lista negra de malware
+            // Evaluamos las respuestas exactas que indica la documentación
             if (data.query_status === 'ok') {
                 return {
                     detected: true,
                     threat: data.threat || 'malware',
-                    status: data.url_status || 'unknown', // Devuelve "online" o "offline"
+                    status: data.url_status || 'unknown',
                     reference: data.urlhaus_reference
                 };
-            } else {
-                // Si la URL está limpia o no la conocen, devuelven "no_results"
+            } else if (data.query_status === 'no_results') {
                 return {
                     detected: false,
-                    threat: "NONE"
+                    threat: "NONE",
+                    message: "URL no encontrada en la base de datos de malware"
+                };
+            } else {
+                // Capturamos si la API nos dice invalid_url u otro error de sintaxis
+                return {
+                    detected: false,
+                    message: `Respuesta de la API: ${data.query_status}`
                 };
             }
 
         } catch (error) {
             console.error("❌ [URLhaus] Error en la consulta:", error.message);
-            // Devolvemos el error para que el Promise.allSettled lo maneje sin botar el resto
             return { error: error.message };
         }
     }
