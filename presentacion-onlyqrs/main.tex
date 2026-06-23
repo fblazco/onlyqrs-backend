@@ -1,0 +1,263 @@
+\documentclass{beamer}
+\usepackage{graphicx}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\title{OnlyQrs}
+\subtitle{Detección de enlaces maliciosos mediante análisis de códigos QR}
+\author{Felipe Blasquez \and Felipe Cortés}
+\institute{Pontificia Universidad Católica de Chile}
+\date{\today}
+
+\begin{document}
+
+%------------------------------------------------
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Motivación}
+\begin{itemize}
+    \item Creciente uso de códigos QR en servicios digitales.
+    \item Aparición de ataques de \textbf{Quishing} (QR + Phishing).
+    \item Los usuarios no pueden inspeccionar fácilmente el contenido de un QR.
+    \item Necesidad de verificar enlaces antes de acceder a ellos.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{¿Qué es el Quishing?}
+\begin{columns}
+
+\column{0.55\textwidth}
+\begin{itemize}
+    \item Ataque basado en códigos QR maliciosos.
+    \item Redirige a sitios fraudulentos.
+    \item Busca robar credenciales o información sensible.
+    \item Variante moderna del phishing tradicional.
+\end{itemize}
+
+\column{0.45\textwidth}
+
+\vspace{1cm}
+\centering
+\includegraphics[
+    width=\textwidth,
+    height=0.75\textheight,
+    keepaspectratio
+]{img/qishing.png}
+
+\end{columns}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Objetivo del Proyecto}
+\begin{block}{Objetivo}
+Desarrollar una aplicación web capaz de analizar enlaces
+provenientes de códigos QR y advertir al usuario sobre
+posibles amenazas antes de visitar el sitio.
+\end{block}
+
+\vspace{0.5cm}
+
+La aplicación permite:
+
+\begin{itemize}
+    \item Escanear códigos QR.
+    \item Extraer URLs automáticamente.
+    \item Analizar URLs manuales.
+    \item Consultar VirusTotal.
+    \item Mostrar resultados de seguridad.
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Arquitectura del Sistema}
+
+\centering
+
+\[
+\boxed{\text{Usuario}}
+\rightarrow
+\boxed{\text{React}}
+\rightarrow
+\boxed{\text{Lector QR}}
+\rightarrow
+\boxed{\text{VirusTotal API}}
+\rightarrow
+\boxed{\text{Resultado}}
+\]
+
+\vspace{1cm}
+
+\begin{itemize}
+    \item Frontend desarrollado en React.
+    \item Procesamiento de códigos QR.
+    \item Integración con VirusTotal.
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Flujo de Funcionamiento}
+
+\begin{enumerate}
+    \item Escanear QR o ingresar URL.
+    \item Obtener enlace asociado.
+    \item Consultar API de VirusTotal.
+    \item Recuperar reputación del enlace.
+    \item Mostrar resultado al usuario.
+\end{enumerate}
+
+\vspace{0.5cm}
+\centering
+\includegraphics[
+    width=1\textwidth,
+    height=0.6\textheight,
+    keepaspectratio
+]{img/diagrama-flujo-Funcionamiento.png}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Demostración de la Aplicación: Móvil}
+
+\centering
+
+\includegraphics[
+    width=\textwidth,
+    height=0.75\textheight,
+    keepaspectratio
+]{img/ss1_movil.jpg}
+
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Demostración de la Aplicación: Móvil}
+
+\centering
+
+\includegraphics[
+    width=\textwidth,
+    height=0.75\textheight,
+    keepaspectratio
+]{img/ss2_movil.jpg}
+
+\end{frame}
+%--------------------
+
+%------------------------------------------------
+
+\begin{frame}{Demostración de la Aplicación: Móvil}
+
+\centering
+
+\includegraphics[
+    width=\textwidth,
+    height=0.75\textheight,
+    keepaspectratio
+]{img/ss3_movil.jpg}
+
+\end{frame}
+
+
+
+%------------------------------------------------
+
+\begin{frame}{Demostración de la Aplicación: Web}
+
+\centering
+
+\includegraphics[
+    width=\textwidth,
+    height=0.75\textheight,
+    keepaspectratio
+]{img/ss1.png}
+
+\end{frame}
+
+
+%------------------------------------------------
+
+
+\begin{frame}{Demostración de la Aplicación: Web}
+
+\centering
+
+\includegraphics[
+    width=\textwidth,
+    height=0.75\textheight,
+    keepaspectratio
+]{img/ss2.png}
+
+\end{frame}
+
+
+%------------------------------------------------
+\begin{frame}{Resultados Obtenidos}
+
+\begin{itemize}
+    \item URLs legítimas clasificadas correctamente.
+    \item URLs maliciosas detectadas mediante VirusTotal.
+    \item Integración estable durante las pruebas.
+    \item Validación técnica exitosa del sistema.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Limitación:}
+\begin{itemize}
+    \item No se realizaron pruebas con usuarios externos.
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Aprendizajes y Trabajo Futuro}
+
+\textbf{Aprendizajes}
+
+\begin{itemize}
+    \item La detección de amenazas es más compleja de lo esperado.
+    \item Mantener inteligencia de amenazas actualizada es difícil.
+    \item VirusTotal aporta múltiples motores de detección.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Trabajo Futuro}
+
+\begin{itemize}
+    \item Aplicación móvil.
+    \item Integración directa con la cámara.
+    \item Análisis automático de QRs en tiempo real.
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\centering
+
+\Huge ¡Gracias!
+
+\vspace{0.5cm}
+
+\Large Preguntas
+
+\end{frame}
+
+%------------------------------------------------
+
+\end{document}
