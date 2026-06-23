@@ -35,7 +35,7 @@ const validateUrlInput = (req, res, next) => {
 // ==========================================
 
 // 1. Ruta principal del escáner (arreglada a /scan)
-router.post('/verify', validateUrlInput, verifyUrl);
+router.post('/scanner/verify', validateUrlInput, verifyUrl);
 
 // 2. Ruta para el reporte ejecutivo con IA 
 router.get('/analytics/report', getHistoryReport);
