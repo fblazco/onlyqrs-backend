@@ -149,21 +149,22 @@ $
 %------------------------------------------------
 \begin{frame}{Capa de inteligencia: Modelo 6+1}
 
+% Aumentamos un poco el espaciado entre filas para que respire el texto
+\renewcommand{\arraystretch}{1.3}
+
 \begin{table}[htbp]
 \centering
-\caption{Estrategias de Detección y Objetivos de Análisis del Sistema}
-\label{tab:estrategias_deteccion}
 \begin{tabularx}{\textwidth}{l X}
 \toprule
-\textbf{Estrategia} & \textbf{Objetivo} \\
+\textbf{Estrategia} & \textbf{Objetivo y Justificación} \\
 \midrule
-Whois & Edad del dominio \\
-VirusTotal & Reputación global \\
-Google Safe Browsing & Listas negras \\
-URLScan & Telemetría histórica \\
-URLHaus & Malware activo \\
-PhishDestroy & Campañas phishing \\
-Heurística propia & Día Cero \\
+Whois & Identifica sitios creados recientemente. \\
+VirusTotal & \textbf{Reputación:} Consolida el veredicto de más de 70 motores de seguridad de la industria. \\
+Google Safe Browsing & \textbf{Listas negras:} Consulta la base de datos oficial más grande de enlaces maliciosos conocidos. \\
+URLScan & Simula un navegador real para analizar el comportamiento del sitio. \\
+URLHaus & Rastrea exclusivamente servidores que distribuyen cargas útiles (troyanos, botnets). \\
+PhishDestroy & Inteligencia comunitaria orientada a detectar estafas de rápida propagación. \\
+Heuristica propia & \textbf{Dia Cero:} Detecta amenazas en su estructura desde el momento de creación. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -253,46 +254,24 @@ La IA no toma decisiones de seguridad.
 
 \end{frame}
 
-%------------------------------------------------
-\begin{frame}{Análisis Histórico y Dashboard Ejecutivo}
+\begin{frame}{Generacion de Analytics}
 
-\begin{columns}[T] 
-    
-    % COLUMNA IZQUIERDA: Flujo de procesamiento
-    \begin{column}{0.5\textwidth}
-        \begin{block}{Pipeline de Análisis (Backend)}
-            \begin{enumerate}
-                \item \textbf{Extracción (PostgreSQL):} Recuperación de todos los registros históricos de escaneo.
-                \item \textbf{Cálculo Estático (Node.js):} Agrupación determinista por nivel de riesgo para \textbf{evitar alucinaciones} numéricas de la IA.
-                \item \textbf{Inferencia Semántica (Gemini):} Análisis de patrones sobre una muestra acotada de URLs maliciosas.
-                \item \textbf{Consumo (React):} Entrega de resultados para visualización en el dashboard.
-            \end{enumerate}
-        \end{block}
-    \end{column}
+El sistema transforma el historial acumulado de escaneos en información útil para la toma de decisiones:
 
-    % COLUMNA DERECHA: Características Técnicas
-    \begin{column}{0.45\textwidth}
-        \vspace{0.2cm}
-        \textbf{Características del Motor IA:}
-        
-        \begin{itemize}
-            \item \textbf{JSON Estricto:} Prompt engineering diseñado para forzar a Gemini a devolver una estructura de datos predefinida.
-            \item \textbf{Eficiencia de Tokens:} Filtrado inteligente que solo envía métricas pre-calculadas y top 30 amenazas.
-            \item \textbf{Resiliencia (Fallback):} Si la API de Google falla o devuelve un JSON corrupto, el sistema genera un reporte estático automático sin romper el frontend.
-        \end{itemize}
-    \end{column}
+\vspace{0.5cm}
 
-\end{columns}
+\begin{enumerate}
+    \item \textbf{Almacenamiento Continuo:} Cada vez que un usuario analiza un código QR, el veredicto y sus detalles de riesgo se guardan en la base de datos.
+    \item \textbf{Recopilación Global:} El sistema extrae todo el historial de amenazas almacenado a lo largo del tiempo.
+    \item \textbf{Procesamiento Inteligente:} Se calculan las estadísticas y la IA redacta un resumen sobre las tendencias de ataque.
+    \item \textbf{Visualización:} Se entrega un reporte consolidado y fácil de leer a la interfaz web para mostrar gráficos y métricas.
+\end{enumerate}
 
-\vspace{0.4cm}
+\vspace{0.5cm}
 
-\begin{exampleblock}{Reporte Generado (Estructura)}
-    \small
-    \textbf{1. Overview:} Estado global de la seguridad.\\
-    \textbf{2. Top Threat:} Vectores y marcas más suplantadas.\\
-    \textbf{3. Infrastructure:} Patrones en dominios (ej. TLDs sospechosos).\\
-    \textbf{4. Recommendation:} Acciones mitigatorias sugeridas.
-\end{exampleblock}
+\begin{block}{Valor del Sistema}
+No solo detectamos enlaces maliciosos en el instante, sino que construimos inteligencia histórica para entender cómo evolucionan las amenazas.
+\end{block}
 
 \end{frame}
 

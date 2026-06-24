@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1782267061.75112 "/Users/felipeblasquezcontreras/Desktop/Archivos/2026-1/Seguridad Computacional/app-onlyqrs/onlyqrs-backend/presentacion-onlyqrs/main.tex" "main.pdf" "main" 1782267066.90192 0
-  "/Users/felipeblasquezcontreras/Desktop/Archivos/2026-1/Seguridad Computacional/app-onlyqrs/onlyqrs-backend/presentacion-onlyqrs/main.tex" 1782267061.46195 11022 294dfc3edc9fd97ef9e3d877cd72b587 ""
+["pdflatex"] 1782268198.18703 "/Users/felipeblasquezcontreras/Desktop/Archivos/2026-1/Seguridad Computacional/app-onlyqrs/onlyqrs-backend/presentacion-onlyqrs/main.tex" "main.pdf" "main" 1782268203.63602 0
+  "/Users/felipeblasquezcontreras/Desktop/Archivos/2026-1/Seguridad Computacional/app-onlyqrs/onlyqrs-backend/presentacion-onlyqrs/main.tex" 1782268197.94515 10496 fd74c203d105737aaeee30bea98f1451 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -209,10 +209,10 @@
   "img/ss2.png" 1782131819.06778 1882606 ab0f828d5c729f0c28abf982dbf310ab ""
   "img/ss2_movil.jpg" 1782132227.03202 58375 5a64827303b6a9885ec94d262de391cb ""
   "img/ss3_movil.jpg" 1782132233.11583 95343 c565895b1d48a30514a1ff404e772250 ""
-  "main.aux" 1782267066.80355 3006 562f91748539c2bb2c3230cdd3e963da "pdflatex"
-  "main.nav" 1782267066.80434 1946 cc1d57bc897673374b837eab8153475a "pdflatex"
-  "main.out" 1782267062.54977 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "main.tex" 1782267061.46195 11022 294dfc3edc9fd97ef9e3d877cd72b587 ""
+  "main.aux" 1782268203.53662 2883 b199f66519bdeb48ded663e64304019e "pdflatex"
+  "main.nav" 1782268203.53762 1946 cc1d57bc897673374b837eab8153475a "pdflatex"
+  "main.out" 1782268198.92018 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "main.tex" 1782268197.94515 10496 fd74c203d105737aaeee30bea98f1451 ""
   (generated)
   "main.aux"
   "main.log"
