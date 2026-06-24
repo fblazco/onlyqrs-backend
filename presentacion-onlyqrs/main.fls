@@ -1,8 +1,8 @@
-PWD /Users/felipeblasquezcontreras/Desktop/Archivos/2026-1/Seguridad Computacional/presentacion-onlyqrs
+PWD /Users/felipeblasquezcontreras/Desktop/Archivos/2026-1/Seguridad Computacional/app-onlyqrs/onlyqrs-backend/presentacion-onlyqrs
 INPUT /usr/local/texlive/2024/texmf.cnf
 INPUT /usr/local/texlive/2024/texmf-dist/web2c/texmf.cnf
 INPUT /usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT /Users/felipeblasquezcontreras/Desktop/Archivos/2026-1/Seguridad Computacional/presentacion-onlyqrs/main.tex
+INPUT /Users/felipeblasquezcontreras/Desktop/Archivos/2026-1/Seguridad Computacional/app-onlyqrs/onlyqrs-backend/presentacion-onlyqrs/main.tex
 OUTPUT main.log
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamer.cls
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamer.cls
@@ -278,6 +278,12 @@ INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamericononline.20.pd
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamericononline.20.pdf
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerouterthemedefault.sty
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerouterthemedefault.sty
+INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/tools/tabularx.sty
+INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/tools/tabularx.sty
+INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/tools/array.sty
+INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/tools/array.sty
+INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/booktabs/booktabs.sty
+INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/booktabs/booktabs.sty
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerthemeMadrid.sty
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerthemeMadrid.sty
 INPUT /usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamercolorthemewhale.sty
@@ -369,11 +375,10 @@ INPUT ./img/qishing.png
 INPUT ./img/qishing.png
 INPUT ./img/qishing.png
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmss12.tfm
-INPUT ./img/diagrama-flujo-Funcionamiento.png
-INPUT ./img/diagrama-flujo-Funcionamiento.png
-INPUT ./img/diagrama-flujo-Funcionamiento.png
-INPUT ./img/diagrama-flujo-Funcionamiento.png
-INPUT ./img/diagrama-flujo-Funcionamiento.png
+INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
+INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmss10.tfm
+INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmssi10.tfm
+INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmssbx10.tfm
 INPUT ./img/ss1_movil.jpg
 INPUT ./img/ss1_movil.jpg
 INPUT ./img/ss1_movil.jpg
@@ -406,9 +411,12 @@ OUTPUT main.snm
 INPUT main.aux
 INPUT ./main.out
 INPUT ./main.out
+INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss17.pfb
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb
+INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+INPUT /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb
